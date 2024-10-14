@@ -39,4 +39,7 @@ router.route("/toggle/:id").patch(activateDeactivateRouter)
 // Method PATCH
 router.route("/:id/sessions").patch(createRouterSessions)
 
+// List Sessions from a particular router
+router.route("/:id/sessions/list")
+
 module.exports = router;
