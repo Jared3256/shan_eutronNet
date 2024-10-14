@@ -57,6 +57,8 @@ const netUpdateUser = asyncHandler(async (req, res) => {
   res.send("Net update User Function");
 });
 
+
+
 module.exports = {
   createUser: netCreateUser,
   netLogin,

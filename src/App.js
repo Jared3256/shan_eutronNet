@@ -71,6 +71,7 @@ app.use("/api/expense", require("./Routes/app/ExpenseRoute"));
 app.use("/net", require("./Routes/net/net.user.routes"));
 app.use("/net", require("./Routes/net/net.vendor.routes"));
 app.use("/net/api/router", require("./Routes/net/net.router.routes"));
+app.use("/net/api/sessions", require("./Routes/net/net.sessions.routes"));
 
 app.use(errorHandler);
 app.use(errorManager.notFound);

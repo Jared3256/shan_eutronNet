@@ -20,4 +20,6 @@ router.route("/auth/login").post(netLogin);
 // Update user details Endpoint
 // Method PUT
 router.route("/api/update").put(netUpdateUser);
+
+
 module.exports = router;
