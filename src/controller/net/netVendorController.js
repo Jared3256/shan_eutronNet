@@ -164,7 +164,7 @@ const netPricingPlan = asyncHandler(async (req, res) => {
 // Endpoints /net/api/vendor/:vendorId/discounts
 const netDiscounts = asyncHandler(async (req, res) => {
   const { vendorId } = req.params;
-  const { code, type, value, validUntil } = req.body;
+  const { code, type, value } = req.body;
 
   //  Check if the Id length is 24
   if (String(vendorId).length !== 24) {

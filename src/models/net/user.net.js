@@ -18,6 +18,11 @@ const netUserSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+  accountStatus: {
+    type: String,
+    enum: ["activated", "inactive", "suspended"],
+    default: "inactive",
+  },
   subscriptions: [
     {
       vendorId: {

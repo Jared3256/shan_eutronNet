@@ -34,6 +34,9 @@ const netSessionSchema = new mongoose.Schema({
     enum: ["active", "inactive"],
     default: "active",
   },
+}, {
+  timeseries: true,
+  timestamps:true
 });
 
 const NetSession = mongoose.model("NetSession", netSessionSchema);
