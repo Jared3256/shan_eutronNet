@@ -305,6 +305,47 @@ const activateDeactivateRouter = asyncHandler(async (req, res) => {
 const createRouterSessions = asyncHandler(async (req, res) => {
   return res.status(423).json({message:"Api under development"})
 })
+
+// Function to get all sessions from a particular router
+// Access Private
+// Endpoint /net/api/router/routerId/sessions/list
+const listRouterSessions = asyncHandler(async(req, res)=>{
+  // Find the id of the router
+  const { id } = req.params;
+
+  let data = []
+
+  // Check the length of the Id
+  if (String(id).length !== 24) {
+    return res
+      .status(417)
+      .json({ message: "Router Id format mismatching", success: false });
+  }
+
+  // Check if the Router exists with the provided Id
+  try {
+    const foundRouter = await Model.findById(id).select("-rootPassword");
+
+    if (!foundRouter) {
+      return res
+        .status(417)
+        .json({ message: "No router found with the Id", success: false });
+    }
+
+   data = foundRouter.sessions
+
+    if (data.length < 1) {
+      return res.status(417).json({message:"The router does not have any sessions", success:false})
+    }
+  } catch (error) {
+    return res
+      .status(417)
+      .json({ message: "No router found with the Id", success: false });
+  }
+
+  return res.status(200).json({message:"Found all the sessions", data, success:true})
+})
+
 module.exports = {
   createRouter,
   listRouter,
@@ -313,4 +354,5 @@ module.exports = {
   updateRouter,
   activateDeactivateRouter,
   createRouterSessions,
+  listRouterSessions
 };
