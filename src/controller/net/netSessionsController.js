@@ -94,6 +94,13 @@ const createSession = asyncHandler(async (req, res) => {
   });
 });
 
+// Function to delete sessions
+// Access Private
+// Endpoint /net/api/sessions/delete
+const removeSession = asyncHandler(async (req, res) => {
+    return res.status(405).json({message:"cannot remove session once created", success:false})
+})
+
 module.exports = {
-  createSession,
+  createSession,removeSession
 };
