@@ -135,28 +135,73 @@ const updateSession = asyncHandler(async (req, res) => {
     await foundSession.save();
 
     // find the router with the session and update
-    const Routers = await routerModel.find({});
-    const correctRouter = Routers.filter((router) => {
-      const sessions = router.sessions;
+    const Routers = await routerModel.find({}).select("-rootPassword");
+
+    const cRouter = Routers.filter((Router) => {
+      const sessions = Router.sessions;
 
       const correctSession = sessions.filter((session) => {
-      
-        const sess = { ...session.__parentArray };
-        console.log("🚀 ~ correctSession ~ path:", 
-         sess.sessionId
-        );
-        
-        session.sessionId === id;
+        if (new mongoose.Types.ObjectId(id).equals(session.sessionId)) {
+          console.log("sssssss");
+          return session;
+        }
       });
+      if (correctSession.length > 0) {
+        return Router;
+      }
+    })[0];
 
-      if (correctSession.length) {
-        console.log("🚀 ~ correctRouter ~ correctSession:", correctSession);
-        return router;
+    const foundCorrectRouter = await routerModel.findById(cRouter._id);
+    const correctRouterSessions = foundCorrectRouter.sessions;
+    // console.log("🚀 ~ updateSession ~ correctRouterSessions:", correctRouterSessions)
+
+    const currentSession = correctRouterSessions.filter((session) => {
+      if (new mongoose.Types.ObjectId(id).equals(session.sessionId)) {
+        return session;
       }
     });
+
+    const temporarySessions = correctRouterSessions.filter((session) => {
+      if (!new mongoose.Types.ObjectId(id).equals(session.sessionId)) {
+        return session;
+      }
+    });
+    currentSession[0].dataUsed = dataUsed;
+
+    foundCorrectRouter.sessions = [...temporarySessions, ...currentSession];
+
+    const totalData = () => {
+      let data = 0
+      for (let index = 0; index < correctRouterSessions.length; index++) {
+        data = data + correctRouterSessions[index].dataUsed;
+      }
+
+      return data
+    }
+
+    foundCorrectRouter.totalDataUsed = totalData();
+    // Save the Router to the database
+    await foundCorrectRouter.save();
+    // const correctRouter = Routers.filter((router) => {
+    //   const sessions = router.sessions;
+
+    //   const correctSession = sessions.filter((session) => {
+
+    //     const sess = { ...session.__parentArray };
+    //     console.log("🚀 ~ correctSession ~ path:",
+    //      sess.sessionId
+    //     );
+
+    //     session.sessionId === id;
+    //   });
+
+    //   if (correctSession.length) {
+    //     console.log("🚀 ~ correctRouter ~ correctSession:", correctSession);
+    //     return router;
+    //   }
+    // });
     return res.status(200).json({ message: "Session update successfully" });
   } catch (error) {
-    console.log("🚀 ~ updateSession ~ error:", error);
     return res
       .status(417)
       .json({ message: "Id provided does not match any session" });
