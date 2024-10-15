@@ -1,4 +1,4 @@
-const { createSession, removeSession, updateSession, endSession } = require("../../controller/net/netSessionsController");
+const { createSession, removeSession, updateSession, endSession, listAllSession } = require("../../controller/net/netSessionsController");
 
 const router = require("express").Router();
 
@@ -19,4 +19,8 @@ router.route("/:id/update").put(updateSession)
 // Endpoint to end session
 // Method POST
 router.route("/:id/end").post(endSession)
+
+// Endpoint to list all sessions
+// Method GET
+router.route("/listAll").get(listAllSession)
 module.exports = router;

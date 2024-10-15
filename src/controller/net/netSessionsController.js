@@ -171,13 +171,13 @@ const updateSession = asyncHandler(async (req, res) => {
     foundCorrectRouter.sessions = [...temporarySessions, ...currentSession];
 
     const totalData = () => {
-      let data = 0
+      let data = 0;
       for (let index = 0; index < correctRouterSessions.length; index++) {
         data = data + correctRouterSessions[index].dataUsed;
       }
 
-      return data
-    }
+      return data;
+    };
 
     foundCorrectRouter.totalDataUsed = totalData();
     // Save the Router to the database
@@ -231,8 +231,8 @@ const endSession = asyncHandler(async (req, res) => {
         .json({ message: "Ids provided does not match any session" });
     }
 
-    const time = Date.now()
-    foundSession.endTime = time
+    const time = Date.now();
+    foundSession.endTime = time;
 
     await foundSession.save();
 
@@ -269,23 +269,47 @@ const endSession = asyncHandler(async (req, res) => {
       }
     });
     currentSession[0].endTime = time;
+    foundCorrectRouter.status = "inactive";
 
     foundCorrectRouter.sessions = [...temporarySessions, ...currentSession];
 
-    
     // Save the Router to the database
     await foundCorrectRouter.save();
-    
+console.log("🚀 ~ endSession ~ foundCorrectRouter:", foundCorrectRouter);
     return res.status(200).json({ message: "Session ended successfully" });
   } catch (error) {
-    console.log("🚀 ~ endSession ~ error:", error)
+    console.log("🚀 ~ endSession ~ error:", error);
     return res
       .status(417)
       .json({ message: "Id provided does not match any session" });
   }
-})
+    
+});
+
+// Function to list all sessions
+// Access Private
+// Endpoint /net/api/sessions/listAll
+const listAllSession = asyncHandler(async (req, res) => {
+  const sessions = await sessionModel.find({});
+
+  if (sessions.length < 1) {
+    return res
+      .status(404)
+      .json({ message: "No session is available", success: false });
+  }
+
+  return res
+    .status(200)
+    .json({
+      message: "Found all sessions",
+      sessions: [...sessions],
+      success: true,
+    });
+});
 module.exports = {
   createSession,
   removeSession,
-  updateSession,endSession
+  updateSession,
+  endSession,
+  listAllSession,
 };
