@@ -207,8 +207,85 @@ const updateSession = asyncHandler(async (req, res) => {
       .json({ message: "Id provided does not match any session" });
   }
 });
+
+// Function to end the session
+// Access Public / Private
+// Endpoint /net/api/sessions/sessionId/end
+const endSession = asyncHandler(async (req, res) => {
+  // Get the session Id from the request
+  const { id } = req.params;
+
+  // Check if the sessionId id is equal to 24
+  if (String(id).length !== 24) {
+    return res
+      .status(417)
+      .json({ message: "Session Id format mismatching", success: false });
+  }
+
+  // Find the Session from the database
+  try {
+    const foundSession = await sessionModel.findById(id);
+    if (!foundSession) {
+      return res
+        .status(417)
+        .json({ message: "Ids provided does not match any session" });
+    }
+
+    const time = Date.now()
+    foundSession.endTime = time
+
+    await foundSession.save();
+
+    // find the router with the session and update
+    const Routers = await routerModel.find({}).select("-rootPassword");
+
+    const cRouter = Routers.filter((Router) => {
+      const sessions = Router.sessions;
+
+      const correctSession = sessions.filter((session) => {
+        if (new mongoose.Types.ObjectId(id).equals(session.sessionId)) {
+          console.log("sssssss");
+          return session;
+        }
+      });
+      if (correctSession.length > 0) {
+        return Router;
+      }
+    })[0];
+
+    const foundCorrectRouter = await routerModel.findById(cRouter._id);
+    const correctRouterSessions = foundCorrectRouter.sessions;
+    // console.log("🚀 ~ updateSession ~ correctRouterSessions:", correctRouterSessions)
+
+    const currentSession = correctRouterSessions.filter((session) => {
+      if (new mongoose.Types.ObjectId(id).equals(session.sessionId)) {
+        return session;
+      }
+    });
+
+    const temporarySessions = correctRouterSessions.filter((session) => {
+      if (!new mongoose.Types.ObjectId(id).equals(session.sessionId)) {
+        return session;
+      }
+    });
+    currentSession[0].endTime = time;
+
+    foundCorrectRouter.sessions = [...temporarySessions, ...currentSession];
+
+    
+    // Save the Router to the database
+    await foundCorrectRouter.save();
+    
+    return res.status(200).json({ message: "Session ended successfully" });
+  } catch (error) {
+    console.log("🚀 ~ endSession ~ error:", error)
+    return res
+      .status(417)
+      .json({ message: "Id provided does not match any session" });
+  }
+})
 module.exports = {
   createSession,
   removeSession,
-  updateSession,
+  updateSession,endSession
 };
