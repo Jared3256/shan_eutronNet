@@ -20,6 +20,7 @@ const mongoose = require("mongoose");
 // Endpoint /net/api/sessions/create
 const createSession = asyncHandler(async (req, res) => {
   let foundRouter;
+  let foundUser;
   // Get the details from the request body
   const { userId, vendorId, routerId } = req.body;
 
@@ -48,7 +49,7 @@ const createSession = asyncHandler(async (req, res) => {
 
   // Check if there is user with the userId
   try {
-    const foundUser = await userModel.findById(userId);
+    foundUser = await userModel.findById(userId);
     if (!foundUser) {
       return res.status(417).json({ message: "No user linked to the Id" });
     }
@@ -87,6 +88,19 @@ const createSession = asyncHandler(async (req, res) => {
   ];
 
   await foundRouter.save();
+
+  // inject the session into the correct user
+  foundUser.sessions = [
+    ...foundUser.sessions,
+    {
+      sessionId: newSession._doc._id,
+      startTime: newSession._doc.startTime,
+      routerId: routerId,
+      vendorId: vendorId,
+    },
+  ];
+
+  await foundUser.save();
   return res.status(200).json({
     message: "Successfully created session",
     newSession,
@@ -275,15 +289,13 @@ const endSession = asyncHandler(async (req, res) => {
 
     // Save the Router to the database
     await foundCorrectRouter.save();
-console.log("🚀 ~ endSession ~ foundCorrectRouter:", foundCorrectRouter);
+
     return res.status(200).json({ message: "Session ended successfully" });
   } catch (error) {
-    console.log("🚀 ~ endSession ~ error:", error);
     return res
       .status(417)
       .json({ message: "Id provided does not match any session" });
   }
-    
 });
 
 // Function to list all sessions
@@ -298,14 +310,13 @@ const listAllSession = asyncHandler(async (req, res) => {
       .json({ message: "No session is available", success: false });
   }
 
-  return res
-    .status(200)
-    .json({
-      message: "Found all sessions",
-      sessions: [...sessions],
-      success: true,
-    });
+  return res.status(200).json({
+    message: "Found all sessions",
+    sessions: [...sessions],
+    success: true,
+  });
 });
+
 module.exports = {
   createSession,
   removeSession,
