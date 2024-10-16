@@ -15,6 +15,10 @@ const netPaymentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "NetSession",
   },
+  amount: {
+    type: Number,
+    required: true,
+  },
   paymentMethod: {
     type: String,
     enum: ["CreditCard", "PayPal", "BankTransfer", "Mpesa_AirtelMoney"],
@@ -24,6 +28,7 @@ const netPaymentSchema = new mongoose.Schema({
   paymentStatus: {
     type: String,
     enum: ["initiated", "pending", "completed", "refunded"],
+    default: "initiated",
   },
   timestamp: {
     type: Date,
