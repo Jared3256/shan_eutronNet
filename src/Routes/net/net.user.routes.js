@@ -3,6 +3,7 @@ const {
   createUser,
   netLogin,
   netUpdateUser,
+  listAllUsers,
 } = require("../../controller/net/netUserController");
 
 // Import the netUserController
@@ -21,5 +22,9 @@ router.route("/auth/login").post(netLogin);
 // Method PUT
 router.route("/api/update").put(netUpdateUser);
 
+
+// List all users
+// Method GET
+router.route("/auth/api/users/listAll").get(listAllUsers);
 
 module.exports = router;

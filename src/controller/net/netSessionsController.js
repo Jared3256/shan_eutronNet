@@ -150,6 +150,30 @@ const updateSession = asyncHandler(async (req, res) => {
 
     // find the router with the session and update
     const Routers = await routerModel.find({}).select("-rootPassword");
+    const userId = foundSession.userId;
+    const cUser = await userModel.findById(userId).select("-password");
+
+    const correctUserSessions = cUser.sessions;
+
+    const currentUserSession = correctUserSessions.filter((session) => {
+      if (new mongoose.Types.ObjectId(id).equals(session.sessionId)) {
+        return session;
+      }
+    });
+
+    currentUserSession[0].startTime = foundSession.startTime;
+    currentUserSession[0].dataUsed = dataUsed;
+
+    const temporaryUserSessions = correctUserSessions.filter((session) => {
+      if (!new mongoose.Types.ObjectId(id).equals(session.sessionId)) {
+        return session;
+      }
+    });
+
+    cUser.sessions = [...temporaryUserSessions, ...currentUserSession];
+
+    // Save back the user to the database
+    await cUser.save();
 
     const cRouter = Routers.filter((Router) => {
       const sessions = Router.sessions;
@@ -247,6 +271,7 @@ const endSession = asyncHandler(async (req, res) => {
 
     const time = Date.now();
     foundSession.endTime = time;
+    foundSession.status="inactive"
 
     await foundSession.save();
 
@@ -290,6 +315,31 @@ const endSession = asyncHandler(async (req, res) => {
     // Save the Router to the database
     await foundCorrectRouter.save();
 
+    // Find the user and also update the session end time
+const userId = foundSession.userId;
+const cUser = await userModel.findById(userId).select("-password");
+
+    const correctUserSessions = cUser.sessions;
+
+    const currentUserSession = correctUserSessions.filter((session) => {
+      if (new mongoose.Types.ObjectId(id).equals(session.sessionId)) {
+        return session;
+      }
+    });
+
+    currentUserSession[0].endTime = time;
+    console.log("🚀 ~ endSession ~ currentUserSession.endTime:", currentUserSession.endTime, time)
+
+    const temporaryUserSessions = correctUserSessions.filter((session) => {
+      if (!new mongoose.Types.ObjectId(id).equals(session.sessionId)) {
+        return session;
+      }
+    });
+
+    cUser.sessions = [...temporaryUserSessions, ...currentUserSession];
+    console.log("🚀 ~ endSession ~ cUser:", cUser)
+
+    await cUser.save()
     return res.status(200).json({ message: "Session ended successfully" });
   } catch (error) {
     return res

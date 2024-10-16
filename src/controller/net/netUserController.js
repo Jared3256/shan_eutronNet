@@ -57,10 +57,18 @@ const netUpdateUser = asyncHandler(async (req, res) => {
   res.send("Net update User Function");
 });
 
+// Function to list all users
+// Access Public
+// Endpoint /net/auth/api/users/listAll
+const listAllUsers = asyncHandler(async (req, res) => {
+  const users = await NetUser.find({}).select("-password")
 
+  return res.status(200).json({message:"Found all users", users:[...users], success:true})
+})
 
 module.exports = {
   createUser: netCreateUser,
   netLogin,
   netUpdateUser,
+  listAllUsers,
 };
