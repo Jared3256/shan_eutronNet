@@ -45,7 +45,7 @@ const createPayment = asyncHandler(async (req, res) => {
 
   // Check if userId matches any user
   try {
-    user = await userModel.findById(userId);
+    user = await userModel.findById(userId).select("-password");
 
     if (!user) {
       return res.status(417).json({ message: "Id does not match any user" });
@@ -81,7 +81,7 @@ const createPayment = asyncHandler(async (req, res) => {
     amount,
   });
 
-  // await payment.save();
+  await payment.save();
 
   // Inject the payment to the user model
   user.paymentHistory = [...user.paymentHistory, payment];
@@ -95,8 +95,6 @@ const createPayment = asyncHandler(async (req, res) => {
     message: "Payment was successful",
     success: true,
     payment: { ...payment._doc },
-    user,
-    vendor,
   });
 });
 
@@ -137,9 +135,116 @@ const listAllPayment = asyncHandler(async (req, res) => {
 // Endpoint /net/api/payment/summary/userId
 const paymentSummary = asyncHandler(async (req, res) => {
   // Get the vendor Id from the request query
-  const {id:vendorId} = req.params
+  const { id: vendorId } = req.params;
 
-  // 
+  //check the length of the vendorId
+  if (String(vendorId).length !== 24) {
+    return res
+      .status(417)
+      .json({ message: "vendor id format mismatching", success: true });
+  }
+
+  // Find all the payment with the target vendor id
+  const payments = await paymentModel.find({ vendorId });
+
+  // check if there is payments
+  if (payments.length < 1) {
+    return res.status(417).json({
+      message: "failed to match any payments to the vendor",
+      success: false,
+    });
+  }
+
+  // Total Number of refunds
+  let paymentRefunds = {
+    number: 0,
+    totalAmount: 0,
+  };
+
+  payments.forEach((pay) => {
+    if (pay.refunds.amount > 0) {
+      paymentRefunds.number = paymentRefunds.number + 1;
+      paymentRefunds.totalAmount =
+        paymentRefunds.totalAmount + pay.refunds.amount;
+    }
+  });
+
+  // Total amount accrued
+  let total = 0;
+  payments.forEach((pay) => {
+    total = total + pay.amount;
+  });
+
+  // Payment status stats
+  let paymentPaymentStatus = {
+    initiated: 0,
+    pending: 0,
+    completed: 0,
+    refunded: 0,
+  };
+
+  payments.forEach((pay) => {
+    if (pay.paymentStatus === "initiated") {
+      paymentPaymentStatus.initiated = paymentPaymentStatus.initiated + 1;
+    }
+    if (pay.paymentStatus === "pending") {
+      paymentPaymentStatus.pending = paymentPaymentStatus.pending + 1;
+    }
+    if (pay.paymentStatus === "completed") {
+      paymentPaymentStatus.completed = paymentPaymentStatus.completed + 1;
+    }
+    if (pay.paymentStatus === "refunded") {
+      paymentPaymentStatus.refunded = paymentPaymentStatus.refunded + 1;
+    }
+  });
+  // Payment Method stats
+  let paymentPaymentMethod = {
+    CreditCard: 0,
+    PayPal: 0,
+    BankTransfer: 0,
+    Mpesa_AirtelMoney: 0,
+  };
+
+  payments.forEach((pay) => {
+    if (pay.paymentMethod === "CreditCard") {
+      paymentPaymentMethod.CreditCard = paymentPaymentMethod.CreditCard + 1;
+    }
+    if (pay.paymentMethod === "PayPal") {
+      paymentPaymentMethod.PayPal = paymentPaymentMethod.PayPal + 1;
+    }
+    if (pay.paymentMethod === "BankTransfer") {
+      paymentPaymentMethod.BankTransfer = paymentPaymentMethod.BankTransfer + 1;
+    }
+    if (pay.paymentMethod === "Mpesa_AirtelMoney") {
+      paymentPaymentMethod.Mpesa_AirtelMoney =
+        paymentPaymentMethod.Mpesa_AirtelMoney + 1;
+    }
+  });
+
+  // Discounts provided
+  let paymentDiscounts = {
+    number: 0,
+    totalAmount: 0,
+  };
+
+  payments.forEach((pay) => {
+    if (pay.discountApplied.amount > 0) {
+      paymentDiscounts.number = paymentDiscounts.number + 1;
+      paymentDiscounts.totalAmount =
+        paymentDiscounts.totalAmount + pay.discountApplied.amount;
+    }
+  });
+  return res.status(200).json({
+    message: "Successfully created summary",
+    success: true,
+    stats: {
+      refunds: paymentRefunds,
+      total,
+      paymentStatus: paymentPaymentStatus,
+      paymentMethod: paymentPaymentMethod,
+      paymentDiscounts,
+    },
+  });
 });
 
 // Function to filter payments
