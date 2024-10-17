@@ -13,6 +13,9 @@ const vendorModel = require("../../models/net/vendor.net");
 // import the session model
 const sessionModel = require("../../models/net/session.net");
 
+// import the mongoose package
+const mongoose = require("mongoose");
+
 // Function to create new payments
 // Access Private
 // Endpoint /net/api/payment/create
@@ -116,26 +119,100 @@ const updatePayment = asyncHandler(async (req, res) => {});
 // Endpoint /net/api/payment/list
 const listAllPayment = asyncHandler(async (req, res) => {
   // Find all the payment
-  const payments = await paymentModel.find({})
+  const payments = await paymentModel.find({});
 
   if (payments.length < 1) {
-    return res.status(404).json({message:"no payment found.", success:true})
+    return res
+      .status(404)
+      .json({ message: "no payment found.", success: true });
   }
 
-  return res.status(200).json({message:"payments found success", payments, success:true})
+  return res
+    .status(200)
+    .json({ message: "payments found success", payments, success: true });
 });
 
 // Function to summarise the payment
 // Access Private
 // Endpoint /net/api/payment/summary/userId
-const paymentSummary = asyncHandler(async (req, res) => { });
+const paymentSummary = asyncHandler(async (req, res) => {
+  // Get the vendor Id from the request query
+  const {id:vendorId} = req.params
+
+  // 
+});
 
 // Function to filter payments
 // Access Private
 // Endpoint /net/api/payment/filter
 const filterPayment = asyncHandler(async (req, res) => {
-  
-})
+  const paymentMethod = req.query.paymentMethod || "Mpesa_AirtelMoney";
+  const paymentStatus = req.query.paymentStatus || "initiated";
+  const vendorId = req.query.vendorId || undefined;
+
+  // Check the length of the vendorId incase its provided
+  if (vendorId) {
+    if (String(vendorId).length !== 24) {
+      return res.status(417).json({ message: "vendor Id format mismatching" });
+    }
+  }
+
+  // Check the value passed as payment method
+
+  if (
+    !(
+      paymentMethod === "Mpesa_AirtelMoney" ||
+      paymentMethod === "PayPal" ||
+      paymentMethod === "CreditCard" ||
+      paymentMethod === "BankTransfer"
+    )
+  ) {
+    return res
+      .status(405)
+      .json({ message: "payment method is not supported", success: false });
+  }
+  // Check the value passed as payment status
+  if (
+    !(
+      paymentStatus === "initiated" ||
+      paymentStatus === "pending" ||
+      paymentStatus === "completed" ||
+      paymentStatus === "refunded"
+    )
+  ) {
+    return res
+      .status(405)
+      .json({ message: "payment status is not supported", success: false });
+  }
+
+  const payments = await paymentModel.find({
+    paymentStatus,
+    paymentMethod,
+  });
+
+  // declare filtered payments variable
+  let filteredPayments = payments;
+  if (vendorId) {
+    filteredPayments = filteredPayments.filter((payment) => {
+      if (new mongoose.Types.ObjectId(vendorId).equals(payment.vendorId)) {
+        return payment;
+      }
+    });
+  }
+
+  if (filteredPayments.length < 1) {
+    return res
+      .status(417)
+      .json({ message: "no payment matches search criteria" });
+  }
+  return res.status(200).json({
+    message: "payment filtered",
+    success: true,
+    payment: {
+      ...filteredPayments,
+    },
+  });
+});
 
 module.exports = {
   createPayment,
@@ -144,4 +221,5 @@ module.exports = {
   updatePayment,
   listAllPayment,
   paymentSummary,
+  filterPayment,
 };
