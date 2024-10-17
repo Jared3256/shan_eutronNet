@@ -82,21 +82,50 @@ const createPayment = asyncHandler(async (req, res) => {
 
   // Inject the payment to the user model
   user.paymentHistory = [...user.paymentHistory, payment];
-  await user.save()
+  await user.save();
 
   // Update the vendor Id
   vendor.totalRevenue = Number(vendor.totalRevenue) + Number(amount);
- 
-  await vendor.save()
-  return res
-    .status(200)
-    .json({
-      message: "Payment was successful",
-      success: true,
-      payment: { ...payment._doc },user,vendor
-    });
+
+  await vendor.save();
+  return res.status(200).json({
+    message: "Payment was successful",
+    success: true,
+    payment: { ...payment._doc },
+    user,
+    vendor,
+  });
 });
+
+// Function to delete payment
+// Access Private
+// Endpoint /net/api/payment/paymentId/delete
+const deletePayment = asyncHandler(async (req, res) => {
+  return res
+    .status(405)
+    .json({ message: "cannot remove payment after posting", success: false });
+});
+
+// Function to update payment
+// Access Private
+// Endpoint /net/api/payment/paymentId/update
+const updatePayment = asyncHandler(async (req, res) => {});
+
+// Function to list All payments
+// Access Private
+// Endpoint /net/api/payment/list
+const listAllPayment = asyncHandler(async (req, res) => {});
+
+// Function to summarise the payment
+// Access Private
+// Endpoint /net/api/payment/summary/userId
+const paymentSummary = asyncHandler(async (req, res) => {});
 
 module.exports = {
   createPayment,
+  deletePayment,
+  updatePayment,
+  updatePayment,
+  listAllPayment,
+  paymentSummary,
 };
