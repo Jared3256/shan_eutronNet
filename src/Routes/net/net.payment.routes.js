@@ -17,7 +17,7 @@ router.route("/:id/update").put(updatePayment)
 
 // list all payment endpoint
 // Method GET
-router.route("/listAll").put(listAllPayment)
+router.route("/listAll").get(listAllPayment)
 
 
 // payment summary endpoint

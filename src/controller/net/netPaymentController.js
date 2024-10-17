@@ -114,12 +114,28 @@ const updatePayment = asyncHandler(async (req, res) => {});
 // Function to list All payments
 // Access Private
 // Endpoint /net/api/payment/list
-const listAllPayment = asyncHandler(async (req, res) => {});
+const listAllPayment = asyncHandler(async (req, res) => {
+  // Find all the payment
+  const payments = await paymentModel.find({})
+
+  if (payments.length < 1) {
+    return res.status(404).json({message:"no payment found.", success:true})
+  }
+
+  return res.status(200).json({message:"payments found success", payments, success:true})
+});
 
 // Function to summarise the payment
 // Access Private
 // Endpoint /net/api/payment/summary/userId
-const paymentSummary = asyncHandler(async (req, res) => {});
+const paymentSummary = asyncHandler(async (req, res) => { });
+
+// Function to filter payments
+// Access Private
+// Endpoint /net/api/payment/filter
+const filterPayment = asyncHandler(async (req, res) => {
+  
+})
 
 module.exports = {
   createPayment,
