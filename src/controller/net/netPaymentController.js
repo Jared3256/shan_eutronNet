@@ -24,7 +24,7 @@ const createPayment = asyncHandler(async (req, res) => {
   let vendor;
   // Get the payment details from the body
   const { userId, vendorId, sessionId, amount } = req.body;
-
+  let paymentMethod = req.body.paymentMethod || "Mpesa_AirtelMoney";
   // Check availability of the key payment details
   if (!userId || !vendorId || !sessionId || !amount) {
     return res.status(400).json({ message: "Critical information is missing" });
@@ -79,6 +79,7 @@ const createPayment = asyncHandler(async (req, res) => {
     vendorId,
     sessionId,
     amount,
+    paymentMethod,
   });
 
   await payment.save();
