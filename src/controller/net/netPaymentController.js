@@ -22,8 +22,12 @@ const mongoose = require("mongoose");
 const createPayment = asyncHandler(async (req, res) => {
   let user;
   let vendor;
+  let discountApplied = {
+    code: undefined,
+    amount:0
+  };
   // Get the payment details from the body
-  const { userId, vendorId, sessionId, amount, discountApplied } = req.body;
+  const { userId, vendorId, sessionId, amount, discountCode } = req.body;
   let paymentMethod = req.body.paymentMethod || "Mpesa_AirtelMoney";
   // Check availability of the key payment details
   if (!userId || !vendorId || !sessionId || !amount) {
@@ -75,8 +79,54 @@ const createPayment = asyncHandler(async (req, res) => {
   }
 
   let newAmount = amount;
-  if (discountApplied) {
-    newAmount = Number(amount) - Number(discountApplied.amount);
+  if (discountCode) {
+    // Find the discounts listed under the vendor
+    const vendorDiscounts = vendor.discounts;
+
+    const currentDiscount = vendorDiscounts.filter((disc) => {
+      if (disc.code === discountCode) {
+        return disc;
+      }
+    })[0];
+
+    if (!currentDiscount) {
+      return res.status(417).json({
+        message: "the vendor is not offering that discount at the moment",
+        success: false,
+      });
+    }
+    // Apply the discounts to the
+    const type = currentDiscount.type;
+    const value = currentDiscount.value;
+    const validUntil = currentDiscount.validUntil;
+
+    // Check if the discount is still valid
+    if (validUntil < Date.now()) {
+      return res.status(417).json({
+        message: "the discount has expired. please pay without discount code",
+        success: false,
+      });
+    }
+
+    if (type === "fixed") {
+      newAmount = Number(amount) - Number(value);
+      console.log(
+        "🚀 ~ createPayment ~ newAmount 1:",
+        newAmount,
+        Number(value)
+      );
+    } else {
+      newAmount =
+        Number(amount) - Math.floor((Number(amount) * Number(value)) / 100);
+      console.log(
+        "🚀 ~ createPayment ~ newAmount 2:",
+        newAmount,
+        Math.floor((Number(amount) * Number(value)) / 100)
+      );
+    }
+
+    discountApplied.code = discountCode
+    discountApplied.amount = Math.floor((Number(amount) * Number(value)) / 100);
   }
 
   // Create the payment model
@@ -373,13 +423,12 @@ const filterPayment = asyncHandler(async (req, res) => {
   });
 });
 
-
 // Function to process refunds
 // Access Private
 // Endpoint /net/api/payment/payment Id/refund
 const processRefund = asyncHandler(async (req, res) => {
-  
-})
+  const { id } = req.params;
+});
 
 module.exports = {
   createPayment,
@@ -389,4 +438,5 @@ module.exports = {
   listAllPayment,
   paymentSummary,
   filterPayment,
+  processRefund,
 };
