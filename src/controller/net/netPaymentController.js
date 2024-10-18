@@ -23,7 +23,7 @@ const createPayment = asyncHandler(async (req, res) => {
   let user;
   let vendor;
   // Get the payment details from the body
-  const { userId, vendorId, sessionId, amount } = req.body;
+  const { userId, vendorId, sessionId, amount, discountApplied } = req.body;
   let paymentMethod = req.body.paymentMethod || "Mpesa_AirtelMoney";
   // Check availability of the key payment details
   if (!userId || !vendorId || !sessionId || !amount) {
@@ -73,13 +73,20 @@ const createPayment = asyncHandler(async (req, res) => {
   } catch (error) {
     return res.status(417).json({ message: "Id does not match any session" });
   }
+
+  let newAmount = amount;
+  if (discountApplied) {
+    newAmount = Number(amount) - Number(discountApplied.amount);
+  }
+
   // Create the payment model
   const payment = new paymentModel({
     userId,
     vendorId,
     sessionId,
-    amount,
+    amount: newAmount,
     paymentMethod,
+    discountApplied,
   });
 
   await payment.save();
@@ -111,7 +118,45 @@ const deletePayment = asyncHandler(async (req, res) => {
 // Function to update payment
 // Access Private
 // Endpoint /net/api/payment/paymentId/update
-const updatePayment = asyncHandler(async (req, res) => {});
+const updatePayment = asyncHandler(async (req, res) => {
+  // Get the Id from the request params
+  const { id } = req.params;
+
+  // Get the new details from the request body
+  const { paymentStatus } = req.body;
+
+  // validate the Id
+  if (String(id).length !== 24) {
+    return res
+      .status(417)
+      .json({ message: "payment id format mismatching", success: false });
+  }
+
+  const payment = await paymentModel.findById(id);
+
+  if (
+    paymentStatus &&
+    !(
+      paymentStatus === "initiated" ||
+      paymentStatus === "pending" ||
+      paymentStatus === "completed" ||
+      paymentStatus === "refunded"
+    )
+  ) {
+    return res
+      .status(405)
+      .json({ message: "payment status is not supported", success: false });
+  }
+
+  payment.paymentStatus = paymentStatus;
+
+  await payment.save();
+
+  return res.status(200).json({
+    message: "payment updated successfully",
+    success: true,
+  });
+});
 
 // Function to list All payments
 // Access Private
@@ -138,6 +183,14 @@ const paymentSummary = asyncHandler(async (req, res) => {
   // Get the vendor Id from the request query
   const { id: vendorId } = req.params;
 
+  // Find the vendor with the provided Id
+  const vendor = await vendorModel.findById(vendorId);
+
+  if (!vendor) {
+    return res
+      .status(417)
+      .json({ message: "invalid vendor id passed", success: false });
+  }
   //check the length of the vendorId
   if (String(vendorId).length !== 24) {
     return res
@@ -149,7 +202,7 @@ const paymentSummary = asyncHandler(async (req, res) => {
   const payments = await paymentModel.find({ vendorId });
 
   // check if there is payments
-  if (payments.length < 1) {
+  if (payments.length < 0) {
     return res.status(417).json({
       message: "failed to match any payments to the vendor",
       success: false,
@@ -319,6 +372,14 @@ const filterPayment = asyncHandler(async (req, res) => {
     },
   });
 });
+
+
+// Function to process refunds
+// Access Private
+// Endpoint /net/api/payment/payment Id/refund
+const processRefund = asyncHandler(async (req, res) => {
+  
+})
 
 module.exports = {
   createPayment,
