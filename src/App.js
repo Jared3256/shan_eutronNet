@@ -67,12 +67,8 @@ app.use("/api/expensecategory", require("./Routes/app/ExpenseCategoryRoute"));
 // Expense Routes
 app.use("/api/expense", require("./Routes/app/ExpenseRoute"));
 
-// ------------------------------   INTERNET FUNCTIONS  ----------------------------------- //
-app.use("/net", require("./Routes/net/net.user.routes"));
-app.use("/net", require("./Routes/net/net.vendor.routes"));
-app.use("/net/api/router", require("./Routes/net/net.router.routes"));
-app.use("/net/api/sessions", require("./Routes/net/net.sessions.routes"));
-app.use("/net/api/payment", require("./Routes/net/net.payment.routes"))
+// Project category Routes
+app.use("/api/projectcategory", require("./Routes/app/ProjectCategoryRoute"));
 
 app.use(errorHandler);
 app.use(errorManager.notFound);

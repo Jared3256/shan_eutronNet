@@ -5,7 +5,7 @@ const findModel = asyncHandler(async (req, res) => {
   const models = await Model.find();
 
   if (!models?.length) {
-    return res.status(404).json({ message: "" });
+    return res.status(404).json({ message: "Collection is empty" });
   }
   res.json(models);
 });

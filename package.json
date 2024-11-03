@@ -35,10 +35,10 @@
   ],
   "license": "ISC",
   "main": "server.js",
-  "name": "backend",
+  "name": "Shan Dynamic Systems Core",
   "scripts": {
     "dev": "nodemon server",
     "start": "node server"
   },
-  "version": "1.0.0"
+  "version": "1.2.0"
 }
