@@ -2,6 +2,7 @@ const {
   PASSWORD_RESET_REQUEST_TEMPLATE,
   PASSWORD_RESET_SUCCESS_TEMPLATE,
   VERIFICATION_EMAIL_TEMPLATE,
+  REPORT_TEMPLATE,
 } = require("./emailTemplate.js");
 const { mailtrap_client, mailtrap_sender } = require("./mailtrap.config.js");
 
@@ -104,9 +105,29 @@ const sendResetSuccessEmail = async (email) => {
   }
 };
 
+const sendErrorFoundEmail = async (email, error, info) => {
+  const recipient = [{ email }];
+
+  try {
+    const response = await mailtrap_client.send({
+      from: mailtrap_sender,
+      to: recipient,
+      subject: "Error Received - FrontEnd",
+      html: REPORT_TEMPLATE.replace("{error}", String(error.componentStack) + " - " + String(info.componentStack)),
+      category: "System Error - Bugs",
+    });
+
+    console.log("Error email sent successfully", response);
+  } catch (error) {
+    console.error(`Error sending bug email`, error);
+
+    throw new Error(`Error sending bug email: ${error}`);
+  }
+};
 module.exports = {
   sendPasswordResetEmail,
   sendResetSuccessEmail,
   sendWelcomeEmail,
   sendVerificationEmail,
+  sendErrorFoundEmail,
 };

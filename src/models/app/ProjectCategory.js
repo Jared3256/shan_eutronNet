@@ -10,7 +10,7 @@ const projectCategorySchema = new mongoose.Schema(
     description: String,
     title: String,
     tags: [String],
-    start: {
+    start_date: {
       type: Date,
       required: true,
     },
@@ -29,6 +29,16 @@ const projectCategorySchema = new mongoose.Schema(
     isPublic: {
       type: Boolean,
       default: true,
+    },
+    color: {
+      type: String,
+      lowercase: true,
+      trim: true,
+      required: true,
+    },
+    enabled: {
+      type: Boolean,
+      default: false,
     },
   },
   {

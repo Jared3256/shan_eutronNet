@@ -70,6 +70,9 @@ app.use("/api/expense", require("./Routes/app/ExpenseRoute"));
 // Project category Routes
 app.use("/api/projectcategory", require("./Routes/app/ProjectCategoryRoute"));
 
+
+// System Maintenance Routes
+app.use("/system/dev", require("./Routes/system/system.route"))
 app.use(errorHandler);
 app.use(errorManager.notFound);
 

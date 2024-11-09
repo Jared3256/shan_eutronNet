@@ -10,7 +10,7 @@ const mailtrap_client = new MailtrapClient({
 
 const mailtrap_sender = {
   email: "hello@eutron.co.ke",
-  name: "Shan Engineers",
+  name: "Shan Dynamic Systems",
 };
 
 module.exports = {
