@@ -28,6 +28,7 @@ router.route("/admin/create").post(createUserController.create);
 router.route("/admin/disable/:id").post(createUserController.disable);
 router.route("/admin/listAll").get(createUserController.listAll);
 router.route("/admin/list").get(createUserController.paginatedList);
-router.route("/admin/filter").get(createUserController.filter)
-router.route("/admin/remove/:id").delete(createUserController.remove)
+router.route("/admin/filter").get(createUserController.filter);
+router.route("/admin/remove/:id").delete(createUserController.remove);
+router.route("/admmin/update/:id").put(createUserController.update);
 module.exports = router;

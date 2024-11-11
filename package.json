@@ -42,5 +42,5 @@
     "dev": "nodemon server",
     "start": "node server"
   },
-  "version": "1.8.1"
+  "version": "1.9.1"
 }
