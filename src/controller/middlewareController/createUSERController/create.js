@@ -2,13 +2,14 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const { generate: uniqueId } = require("shortid");
 const jwt = require("jsonwebtoken");
+const asyncHandler = require("express-async-handler");
 
 // import user password model
 const UserPassword = require("../../../models/coreModels/UserPassword");
 const { generateVerificationToken } = require("../../../utils/system.utils");
 const { sendVerificationEmail } = require("../../../utils/mailtrap/email");
 
-const create = async (User, req, res) => {
+const create = asyncHandler(async (User, req, res) => {
   let { email, password, enabled, name, surname, role } = req.body;
 
   enabled = false;
@@ -154,5 +155,5 @@ const create = async (User, req, res) => {
     accessToken,
     message: "User document saved successfully",
   });
-};
+});
 module.exports = create;
