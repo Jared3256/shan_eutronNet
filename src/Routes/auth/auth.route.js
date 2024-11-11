@@ -23,6 +23,7 @@ router.post("/forgot_password", forgotPassword);
 
 router.post("/reset_password/:token", resetpassword);
 
-//  Routes for the Core User Model // 
-router.route("/admin/create").post(createUserController.create)
+//__________________  Routes for the Core User Model ___________________ //
+router.route("/admin/create").post(createUserController.create);
+router.route("/admin/disable/:id").post(createUserController.disable);
 module.exports = router;
