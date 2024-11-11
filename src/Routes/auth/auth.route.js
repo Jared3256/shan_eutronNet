@@ -7,6 +7,7 @@ const {
   forgotPassword,
   resetpassword,
 } = require("../../controller/advancedAuthController");
+const createUserController = require("../../controller/middlewareController/createUSERController");
 
 const router = express.Router();
 
@@ -22,4 +23,6 @@ router.post("/forgot_password", forgotPassword);
 
 router.post("/reset_password/:token", resetpassword);
 
+//  Routes for the Core User Model // 
+router.route("/admin/create").post(createUserController.create)
 module.exports = router;
