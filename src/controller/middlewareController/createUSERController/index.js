@@ -5,6 +5,7 @@ const paginatedList = require("./paginatedList");
 const filter = require("./filter");
 const remove = require("./remove");
 const update = require("./update");
+const updatePassword= require("./updatePassword")
 
 // import the user model
 const CoreUser = require("../../../models/coreModels/User.core");
@@ -20,6 +21,7 @@ const createUserController = () => {
   userController.filter = (req, res) => filter(CoreUser, req, res);
   userController.remove = (req, res) => remove(CoreUser, req, res);
   userController.update = (req, res) => update(CoreUser, req, res);
+  userController.updatePassword =  (req, res)=> updatePassword(CoreUser, req, res)
   return userController;
 };
 

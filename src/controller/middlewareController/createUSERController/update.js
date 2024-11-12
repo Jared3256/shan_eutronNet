@@ -2,7 +2,7 @@
 const asyncHandler = require("express-async-handler");
 
 const update = asyncHandler(async (User, req, res) => {
-  const reqUserName = userModel.toLowerCase();
+  const reqUserName = "coreuser".toLowerCase();
   let { email, enabled, name, photo, surname, role } = req.body;
 
   // Get the user Id from the query params
@@ -26,10 +26,11 @@ const update = asyncHandler(async (User, req, res) => {
 
   try {
     const tmpResult = await User.findOne({
-      _id: req.params.id,
+      _id: id,
       removed: false,
     }).exec();
 
+    console.log(tmpResult);
     if (!tmpResult) {
       return res.status(417).json({
         message: "no user matches the id",
@@ -97,7 +98,7 @@ const update = asyncHandler(async (User, req, res) => {
     });
   } catch (error) {
     return res.status(417).json({
-      message: "no user matches the id",
+      message: "no user matches the id o",
       success: false,
       result: null,
     });

@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const orderController = require('../../src/controller/orderController/OrderController')
-const verifyJwt = require('../../src/middleware/verifyJWT')
+const orderController = require('../../controller/orderController/OrderController')
+const verifyJwt = require('../../middleware/verifyJWT')
 
 // protect all the routes under orders
 router.use(verifyJwt)

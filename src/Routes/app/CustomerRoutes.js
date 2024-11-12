@@ -1,9 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const CustomerController = require('../../src/controller/customerController/CustomerController')
-const verifyJWT = require('../../src/middleware/verifyJWT')
+const CustomerController = require('../../controller/customerController/CustomerController')
+const verifyJWT = require('../../middleware/verifyJWT')
 
-// router.use(verifyJWT);
+router.use(verifyJWT);
 
 router.route("/findall")
     .get(CustomerController.getAllCustomers)

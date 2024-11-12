@@ -19,26 +19,22 @@ app.use(cookieParser());
 
 app.use(express.static("../public"));
 
-app.use("/", require("../routes/root"));
-
-// Auth Routes
-app.use("/auth", require("../routes/auth/authRoutes"));
-app.use("/api/auth", require("../routes/auth/authRoutes"));
+app.use("/", require("./Routes/app/root"));
 
 // Advanced Auth routes
 app.use("/api/auth", require("./Routes/auth/auth.route"));
 
 // User Routes
-app.use("/api/user", require("../routes/user/userRoutes"));
+app.use("/api/user", require("./Routes/app/userRoutes"));
 
 // User Routes
-app.use("/api/order", require("../routes/order/orderRoutes"));
+app.use("/api/order", require("./Routes/app/orderRoutes"));
 
 // Customer Routes
-app.use("/api/customer", require("../routes/customer/CustomerRoutes"));
+app.use("/api/customer", require("./Routes/app/CustomerRoutes"));
 
 // Leave routes
-app.use("/api/leave", require("../routes/leave/LeaveRoutes"));
+app.use("/api/leave", require("./Routes/app/LeaveRoutes"));
 
 // Payment Mode  routes
 app.use("/api/paymentMode", require("./Routes/app/PaymentModeRoute"));
@@ -70,9 +66,8 @@ app.use("/api/expense", require("./Routes/app/ExpenseRoute"));
 // Project category Routes
 app.use("/api/projectcategory", require("./Routes/app/ProjectCategoryRoute"));
 
-
 // System Maintenance Routes
-app.use("/system/dev", require("./Routes/system/system.route"))
+app.use("/system/dev", require("./Routes/system/system.route"));
 app.use(errorHandler);
 app.use(errorManager.notFound);
 

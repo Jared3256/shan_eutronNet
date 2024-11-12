@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const LeaveController = require('../../src/controller/leaveController/LeaveController')
-const verifyJwt = require('../../src/middleware/verifyJWT')
+const LeaveController = require('../../controller/leaveController/LeaveController')
+const verifyJwt = require('../../middleware/verifyJWT')
 
 // lock access to the the routes by jwt
 router.use(verifyJwt)

@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-// Import the bcrypt 
-const bcrypt = require("bcrypt")
+// Import the bcrypt
+const bcrypt = require("bcrypt");
 
 const UserPasswordSchema = new Schema({
   removed: {
@@ -23,8 +23,10 @@ const UserPasswordSchema = new Schema({
     type: String,
     required: true,
   },
-  emailToken: String,
-  resetToken: String,
+  emailToken: { type: String },
+  emailTokenExpiresAt :Date,
+  resetToken: { type: String },
+  resetTokenExpiresAt:Date,
   emailVerified: {
     type: Boolean,
     default: false,
@@ -39,7 +41,6 @@ const UserPasswordSchema = new Schema({
   },
 });
 
-
 // UserPasswordSchema.index({ user: 1 });
 // generating a hash
 UserPasswordSchema.methods.generateHash = function (salt, password) {
@@ -51,4 +52,4 @@ UserPasswordSchema.methods.validPassword = function (salt, userPassword) {
   return bcrypt.compareSync(salt + userPassword, this.password);
 };
 
-module.exports = mongoose.model('UserPassword', UserPasswordSchema);
+module.exports = mongoose.model("UserPassword", UserPasswordSchema);

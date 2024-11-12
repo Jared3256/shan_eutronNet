@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const {addHours} = require("date-fns")
 const bcrypt = require("bcryptjs");
 const { generate: uniqueId } = require("shortid");
 const jwt = require("jsonwebtoken");
@@ -81,6 +81,7 @@ const create = asyncHandler(async (User, req, res) => {
     user: result._id,
     emailVerified: false,
     emailToken: verificationToken,
+    emailTokenExpiresAt:addHours(Date.now(), 1)
   };
   const resultPassword = await new UserPassword(UserPasswordData).save();
 
@@ -94,65 +95,12 @@ const create = asyncHandler(async (User, req, res) => {
     });
   }
 
-  // Generate and set token cookies
-
-  const accessToken = jwt.sign(
-    {
-      UserInfo: {
-        removed: result.removed,
-        enabled: result.enabled,
-        email: result.email,
-        name: result.name,
-        surname: result.surname,
-        photo: result.photo,
-        created: result.created,
-        role: result.role,
-        bio: result.bio,
-        timezone: result.timezone,
-        year_leave: result.year_leave,
-      },
-    },
-    process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: "30min",
-    }
-  );
-
-  const refreshToken = jwt.sign(
-    {
-      UserInfo: {
-        removed: result.removed,
-        enabled: result.enabled,
-        email: result.email,
-        name: result.name,
-        surname: result.surname,
-        photo: result.photo,
-        created: result.created,
-        role: result.role,
-        bio: result.bio,
-        timezone: result.timezone,
-        year_leave: result.year_leave,
-      },
-    },
-    process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: "24h",
-    }
-  );
-
-  // create secure cookie with refresh token
-  res.cookie("SDS_Token", refreshToken, {
-    http: true,
-    secure: true,
-    sameSite: "strict",
-    maxAge: 12 * 60 * 60 * 1000, //12 hour maximum time to live,
-  });
-
+  
   // Send verification email
-  //   await sendVerificationEmail(email, verificationToken);
+    await sendVerificationEmail(email, verificationToken);
   return res.status(200).send({
     success: true,
-    accessToken,
+    
     message: "User document saved successfully",
   });
 });
