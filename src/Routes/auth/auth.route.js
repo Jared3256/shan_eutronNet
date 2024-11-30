@@ -28,4 +28,9 @@ router.route("/admin/update/:id").put(createUserController.update);
 router
   .route("/admin/password/update/:id")
   .put(createUserController.updatePassword);
+
+// Routes for handling the UserLeave request
+router.route("/user/:id/leave/create").post(createUserController.applyLeave);
+router.route("/user/leave/listAll").get(createUserController.listAllLeave);
+router.route("/user/leave/:id/approve").put(createUserController.approveLeave)
 module.exports = router;

@@ -12,7 +12,7 @@ console.log(email)
     if (!user) {
       return res
         .status(404)
-        .json({ message: `User with email [${email}] is not registered` });
+        .json({ message: `User with email [${email}] is not registered` , success:false});
     }
 
     // Generate reset token
@@ -29,11 +29,12 @@ console.log(email)
     await passwordModel.save();
 
     // send email
-    const link = `http://localhost:5173/api/auth/reset_password/${resetToken}`;
+    const link = `http://localhost:5173/auth/reset_password/${resetToken}`;
     console.log(link);
-    await sendPasswordResetEmail(email, link);
+    // await sendPasswordResetEmail(email, link);
 
     return res.status(200).json({
+      success:true,
       message: "check your email for reset token",
     });
   } catch (error) {

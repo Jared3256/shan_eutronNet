@@ -37,7 +37,7 @@ const resetPassword = asyncHandler(async (User, req, res) => {
 
   await userPasswordModel.save();
   const user = await User.findById(userPasswordModel.user);
-  await sendResetSuccessEmail(user.email);
+  // await sendResetSuccessEmail(user.email);
 
   return res.status(200).json({ message: "Password reset successful" });
 });

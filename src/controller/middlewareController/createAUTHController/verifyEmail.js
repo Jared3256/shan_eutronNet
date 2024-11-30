@@ -6,26 +6,31 @@ const { sendWelcomeEmail } = require("../../../utils/mailtrap/email");
 const { generateResetToken } = require("../../../utils/system.utils");
 const verifyEmail = asyncHandler(async (User, req, res) => {
   const { code } = req.body;
-
+  const updates = {
+    emailToken: null,
+    emailTokenExpiresAt: null,
+    emailVerified: null,
+  };
   try {
-    const userPasswordModel = await UserPassword.findOne({
-      emailToken: code,
-      emailTokenExpiresAt: { $gt: Date.now() },
-    });
+    const userPasswordModel = await UserPassword.findOneAndUpdate(
+      {
+        emailToken: code,
+        emailTokenExpiresAt: { $gt: Date.now() },
+      },
+      {
+        $set: updates,
+      },
+      {
+        new: true,
+      }
+    ).exec();
 
     if (!userPasswordModel) {
-
       return res.status(400).json({
         success: false,
-        message:
-          "Invalid or expired verification Token.",
+        message: "Invalid or expired verification Token.",
       });
     }
-
-    userPasswordModel.emailToken = null;
-    userPasswordModel.emailTokenExpiresAt = null;
-    userPasswordModel.emailVerified = true
-    await userPasswordModel.save();
 
     //   Get the user and activate their account
     const user = await User.findById(userPasswordModel.user);
@@ -38,10 +43,11 @@ const verifyEmail = asyncHandler(async (User, req, res) => {
     // await sendWelcomeEmail(user.email, user.name);
 
     res.status(200).json({
-      message:"email verified successfully", success:true
-    })
+      message: "email verified successfully",
+      success: true,
+    });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(417).json({
       message: "error verifying account.",
       success: false,

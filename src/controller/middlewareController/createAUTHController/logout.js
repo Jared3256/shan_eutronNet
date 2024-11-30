@@ -4,9 +4,10 @@ const UserPassword = require("../../../models/coreModels/UserPassword");
 
 const logout = asyncHandler(async (User, req, res) => {
   const cookies = req.cookies;
-  const token = cookies?.SDS_Token;
+ 
+  const token = cookies.SDS_Token;
   if (!token) {
-    return res.status(401).json({ message: "Problem logging out" });
+    return res.status(401).json({ message: "Problem logging out+" });
   }
 
   const decoded = jwt.decode(cookies.SDS_Token);
@@ -15,7 +16,7 @@ const logout = asyncHandler(async (User, req, res) => {
     return res.status(401).json({ message: "Problem logging out" });
   }
 
-  const user_id = decoded.id;
+  const user_id = decoded.UserInfo.id;
 
   await UserPassword.findOneAndUpdate(
     { user: user_id },
@@ -40,5 +41,6 @@ const logout = asyncHandler(async (User, req, res) => {
     message: "Successfully logout",
   });
 });
+  
 
 module.exports = logout;

@@ -40,6 +40,12 @@ const userSchema = new Schema({
     enum: ["EAT 3+"],
     default: "EAT 3+",
   },
+  gender: {
+    type: String,
+    enum: ["male", "feminine", "rather not say"],
+    default:"rather not say"
+    
+  },
   year_leave: {
     type: Number,
     default: 60,
