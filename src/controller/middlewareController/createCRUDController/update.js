@@ -1,7 +1,15 @@
 const update = async (Model, req, res) => {
+  // Validate req.body
+  if (typeof req.body !== 'object' || Array.isArray(req.body)) {
+    return res.status(400).json({
+      success: false,
+      result: null,
+      message: 'Invalid request body',
+    });
+  }
   // Find document by id and updates with the required fields
   req.body.removed = false;
-  const result = await Model.findOneAndUpdate({ _id: req.params.id, removed: false }, req.body, {
+  const result = await Model.findOneAndUpdate({ _id: { $eq: req.params.id }, removed: false }, req.body, {
     new: true, // return the new result instead of the old one
     runValidators: true,
   }).exec();
